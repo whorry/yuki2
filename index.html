@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>足し算・引き算クイズ</title>
+<style>
+  body { font-family: sans-serif; text-align: center; margin-top: 30px; }
+  .question { font-size: 28px; margin-bottom: 20px; font-weight: bold; }
+  button { margin: 8px; padding: 10px 20px; font-size: 20px; }
+  #result { font-size: 22px; margin-top: 20px; color: #333; }
+</style>
+</head>
+<body>
+<h1>さんすうクイズ（10問）</h1>
+<div id="quiz-container">
+  <div class="question" id="question"></div>
+  <div id="answers"></div>
+</div>
+<div id="result"></div>
+
+<script>
+let quiz = [];
+
+// ランダムに10問作る（1〜10までの足し算・引き算）
+for (let i = 0; i < 10; i++) {
+  let a = Math.floor(Math.random() * 10) + 1;
+  let b = Math.floor(Math.random() * 10) + 1;
+  let op = Math.random() < 0.5 ? "+" : "-";
+
+  // 引き算はマイナスにならないようにする
+  if (op === "-" && a < b) [a, b] = [b, a];
+
+  let correct = op === "+" ? a + b : a - b;
+
+  // 選択肢作成（正解＋ダミー2つ）
+  let choices = [correct];
+  while (choices.length < 3) {
+    let rand = correct + Math.floor(Math.random() * 5) - 2;
+    if (!choices.includes(rand) && rand >= 0) choices.push(rand);
+  }
+  choices.sort(() => Math.random() - 0.5);
+
+  quiz.push({
+    q: `${a} ${op} ${b} = ?`,
+    a: choices,
+    correct: correct
+  });
+}
+
+let current = 0;
+let score = 0;
+
+function showQuestion() {
+  document.getElementById("question").textContent = quiz[current].q;
+  const answersDiv = document.getElementById("answers");
+  answersDiv.innerHTML = "";
+  quiz[current].a.forEach(choice => {
+    const btn = document.createElement("button");
+    btn.textContent = choice;
+    btn.onclick = () => checkAnswer(choice);
+    answersDiv.appendChild(btn);
+  });
+}
+
+function checkAnswer(choice) {
+  if (choice === quiz[current].correct) {
+    score++;
+    alert("せいかい！");
+  } else {
+    alert("ざんねん…");
+  }
+  current++;
+  if (current < quiz.length) {
+    showQuestion();
+  } else {
+    document.getElementById("quiz-container").style.display = "none";
+    document.getElementById("result").textContent =
+      `おわり！ ${quiz.length}もんちゅう ${score} もんせいかい！`;
+  }
+}
+
+showQuestion();
+</script>
+</body>
+</html>
